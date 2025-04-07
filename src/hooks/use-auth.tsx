@@ -1,11 +1,22 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase, Tables } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import type { Database } from '@/integrations/supabase/types';
 
-interface UserProfile extends Tables['profiles'] {}
+// Define UserProfile type based on the database schema
+interface UserProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  role: 'superadmin' | 'admin' | 'member';
+  is_approved: boolean | null;
+  created_at: string;
+  updated_at: string;
+}
 
 interface AuthContextType {
   session: Session | null;

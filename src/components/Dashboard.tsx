@@ -87,7 +87,7 @@ const Dashboard: React.FC = () => {
     <div>
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
       
-      {!profile?.is_approved && (
+      {profile && !profile.is_approved && (
         <Card className="mb-6 border-yellow-400 bg-yellow-50">
           <CardContent className="p-4 flex items-center gap-3">
             <AlertTriangle className="text-yellow-500" />
@@ -136,7 +136,7 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
         
-        {(profile?.role === 'admin' || profile?.role === 'superadmin') && (
+        {profile && (profile.role === 'admin' || profile.role === 'superadmin') && (
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium flex items-center">

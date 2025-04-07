@@ -104,7 +104,7 @@ const DashboardSidebar: React.FC = () => {
         {/* Navigation */}
         <nav className="flex flex-col p-4 gap-1">
           {navItems.map((item) =>
-            !item.role || (profile && item.role.includes(profile.role as any)) ? (
+            !item.role || (profile && item.role.includes(profile.role)) ? (
               <Link
                 key={item.path}
                 to={item.path}

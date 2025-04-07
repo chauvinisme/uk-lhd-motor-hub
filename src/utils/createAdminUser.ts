@@ -6,11 +6,17 @@ export const createAdminUser = async (email: string, password: string): Promise<
     console.log("Creating admin user with email:", email);
     
     // Check if user already exists
-    const { data: existingUser } = await supabase
+    const { data: existingUsers, error: fetchError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('email', email)
-      .maybeSingle();
+      .eq('email', email);
+    
+    if (fetchError) {
+      console.error("Error checking for existing user:", fetchError);
+      throw fetchError;
+    }
+    
+    const existingUser = existingUsers && existingUsers.length > 0 ? existingUsers[0] : null;
     
     if (existingUser) {
       console.log("User already exists, updating to admin...");
@@ -21,7 +27,7 @@ export const createAdminUser = async (email: string, password: string): Promise<
           role: 'superadmin',
           is_approved: true
         })
-        .eq('email', email);
+        .eq('id', existingUser.id);
       
       if (updateError) throw updateError;
       console.log("Existing user updated to admin");
