@@ -1,41 +1,65 @@
 
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "@/components/ui/use-toast";
 
 const LoginPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [error, setError] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { signIn, signUp, user } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Redirect if already logged in
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setIsLoading(true);
     
-    // Placeholder for login logic
-    console.log("Login attempt with:", { email, password });
-    
-    // Simulate login error for demo purposes
-    if (email === "demo@example.com" && password === "password") {
-      // Redirect to dashboard would happen here in a real app
-      window.location.href = "/dashboard";
-    } else {
-      setError("Invalid credentials. Please try again.");
+    try {
+      await signIn(email, password);
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setIsLoading(true);
     
-    // Placeholder for registration logic
-    console.log("Registration attempt with:", { name, email, password });
-    
-    // Show signup not allowed message
-    setError("Direct registration is not available. Please contact an admin for an invitation.");
+    try {
+      await signUp(email, password, {
+        first_name: name,
+        last_name: lastName
+      });
+      
+      // Clear form and go to login tab
+      setEmail("");
+      setPassword("");
+      setName("");
+      setLastName("");
+      setActiveTab("login");
+      
+      toast({
+        title: "Registration request sent",
+        description: "Please check your email for a verification link. Note that admin approval is also required.",
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,12 +80,6 @@ const LoginPage: React.FC = () => {
 
               <TabsContent value="login">
                 <form onSubmit={handleLogin} className="space-y-4">
-                  {error && (
-                    <div className="bg-red-50 text-red-500 p-3 rounded-md text-sm">
-                      {error}
-                    </div>
-                  )}
-
                   <div>
                     <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">
                       Email Address
@@ -107,8 +125,8 @@ const LoginPage: React.FC = () => {
                     </label>
                   </div>
 
-                  <Button type="submit" className="w-full">
-                    Login
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Logging in..." : "Login"}
                   </Button>
                 </form>
 
@@ -127,28 +145,37 @@ const LoginPage: React.FC = () => {
 
               <TabsContent value="register">
                 <form onSubmit={handleRegister} className="space-y-4">
-                  {error && (
-                    <div className="bg-red-50 text-red-500 p-3 rounded-md text-sm">
-                      {error}
-                    </div>
-                  )}
-
                   <div className="bg-blue-50 text-blue-700 p-4 rounded-md text-sm mb-4">
-                    Registration is by invitation only. Please contact an administrator to request access.
+                    Registration is by invitation only. If you have an invitation code, please use it on the login screen.
                   </div>
 
-                  <div>
-                    <label htmlFor="register-name" className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      id="register-name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-motor-red"
-                      required
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="register-first-name" className="block text-sm font-medium text-gray-700 mb-1">
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        id="register-first-name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-motor-red"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="register-last-name" className="block text-sm font-medium text-gray-700 mb-1">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        id="register-last-name"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-motor-red"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -199,8 +226,8 @@ const LoginPage: React.FC = () => {
                     </label>
                   </div>
 
-                  <Button type="submit" className="w-full">
-                    Register
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Registering..." : "Register"}
                   </Button>
                 </form>
 

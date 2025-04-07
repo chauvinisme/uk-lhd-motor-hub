@@ -9,16 +9,257 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      car_images: {
+        Row: {
+          car_id: string
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          url: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          url: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_images_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cars: {
+        Row: {
+          availability: string
+          created_at: string
+          description: string | null
+          fuel_type: string
+          id: string
+          make: string
+          mileage: number
+          model: string
+          price: number
+          transmission: string
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          availability?: string
+          created_at?: string
+          description?: string | null
+          fuel_type: string
+          id?: string
+          make: string
+          mileage: number
+          model: string
+          price: number
+          transmission: string
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          availability?: string
+          created_at?: string
+          description?: string | null
+          fuel_type?: string
+          id?: string
+          make?: string
+          mileage?: number
+          model?: string
+          price?: number
+          transmission?: string
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      inquiries: {
+        Row: {
+          car_id: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          status: string
+        }
+        Insert: {
+          car_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          status?: string
+        }
+        Update: {
+          car_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiries_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitations: {
+        Row: {
+          created_at: string
+          created_by: string
+          email: string
+          expires_at: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          token: string
+          used: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          email: string
+          expires_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          token: string
+          used?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          token?: string
+          used?: boolean | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          first_name: string | null
+          id: string
+          is_approved: boolean | null
+          last_name: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          first_name?: string | null
+          id: string
+          is_approved?: boolean | null
+          last_name?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          is_approved?: boolean | null
+          last_name?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sell_car_requests: {
+        Row: {
+          additional_info: string | null
+          created_at: string
+          email: string
+          fuel_type: string
+          id: string
+          make: string
+          mileage: number
+          model: string
+          name: string
+          phone: string
+          status: string
+          transmission: string
+          year: number
+        }
+        Insert: {
+          additional_info?: string | null
+          created_at?: string
+          email: string
+          fuel_type: string
+          id?: string
+          make: string
+          mileage: number
+          model: string
+          name: string
+          phone: string
+          status?: string
+          transmission: string
+          year: number
+        }
+        Update: {
+          additional_info?: string | null
+          created_at?: string
+          email?: string
+          fuel_type?: string
+          id?: string
+          make?: string
+          mileage?: number
+          model?: string
+          name?: string
+          phone?: string
+          status?: string
+          transmission?: string
+          year?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_my_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      has_role: {
+        Args: { role: Database["public"]["Enums"]["user_role"] }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "superadmin" | "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +374,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["superadmin", "admin", "member"],
+    },
   },
 } as const
