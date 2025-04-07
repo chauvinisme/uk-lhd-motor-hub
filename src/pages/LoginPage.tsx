@@ -5,6 +5,53 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+// Script to create initial admin user (will only run once)
+const createInitialAdminUser = async () => {
+  // Check if admin user already exists
+  const { data: existingAdmins } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('role', 'superadmin');
+
+  if (existingAdmins && existingAdmins.length > 0) {
+    return; // Admin already exists, don't create a new one
+  }
+
+  try {
+    // Create admin user
+    const { data: userData, error: signUpError } = await supabase.auth.signUp({
+      email: 'admin@example.com',
+      password: 'AmazonPrime212@',
+      options: {
+        data: {
+          first_name: 'Admin',
+          last_name: 'User'
+        }
+      }
+    });
+
+    if (signUpError) throw signUpError;
+    
+    if (userData.user) {
+      // Update the user's role to superadmin and approve them
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          role: 'superadmin',
+          is_approved: true
+        })
+        .eq('id', userData.user.id);
+
+      if (updateError) throw updateError;
+      
+      console.log('Admin user created successfully');
+    }
+  } catch (error) {
+    console.error('Error creating admin user:', error);
+  }
+};
 
 const LoginPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("login");
@@ -15,6 +62,11 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const { signIn, signUp, user } = useAuth();
+  
+  // Try to create initial admin user when the component mounts
+  useEffect(() => {
+    createInitialAdminUser();
+  }, []);
 
   // Redirect if already logged in
   if (user) {

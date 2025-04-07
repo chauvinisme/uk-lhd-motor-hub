@@ -1,18 +1,11 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, Tables } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
-interface UserProfile {
-  id: string;
-  first_name: string | null;
-  last_name: string | null;
-  role: 'superadmin' | 'admin' | 'member';
-  is_approved: boolean;
-  phone: string | null;
-}
+interface UserProfile extends Tables['profiles'] {}
 
 interface AuthContextType {
   session: Session | null;
@@ -84,7 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           variant: 'destructive',
         });
       } else {
-        setProfile(data);
+        setProfile(data as UserProfile);
       }
     } catch (error) {
       console.error('Unexpected error fetching profile:', error);
@@ -93,7 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<void> => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -115,14 +108,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       navigate('/dashboard');
-      return data;
     } catch (error: any) {
       console.error('Login error:', error.message);
       throw error;
     }
   };
 
-  const signUp = async (email: string, password: string, metadata: { first_name: string; last_name: string }) => {
+  const signUp = async (email: string, password: string, metadata: { first_name: string; last_name: string }): Promise<void> => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -146,7 +138,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: 'Your account has been created. Please wait for admin approval.',
       });
       
-      return data;
     } catch (error: any) {
       console.error('Registration error:', error.message);
       throw error;
