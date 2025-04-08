@@ -24,13 +24,15 @@ export const createAdminUser = async (): Promise<void> => {
       console.log("Existing users found, checking for admin user...");
       
       // Get user by email
-      const { data: users, error: userError } = await supabase.auth.admin.listUsers();
+      const { data: userList, error: userError } = await supabase.auth.admin.listUsers();
       
       if (userError) {
         console.error("Error listing users:", userError);
-      } else if (users && users.users) {
+      } else if (userList && userList.users) {
         // Find the admin user in the user list
-        const adminUser = users.users.find(user => user.email === adminEmail);
+        const adminUser = userList.users.find(user => 
+          user.email === adminEmail
+        );
         
         if (adminUser) {
           console.log("Admin user found, ensuring account is confirmed and has superadmin role");
