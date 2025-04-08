@@ -9,9 +9,6 @@ export const createAdminUser = async (email: string, password: string): Promise<
     const { data: userList, error: authCheckError } = await supabase.auth.admin.listUsers({
       perPage: 1,
       page: 1,
-      filter: {
-        email: email
-      }
     });
     
     if (authCheckError) {
@@ -19,16 +16,17 @@ export const createAdminUser = async (email: string, password: string): Promise<
       // Continue with the process, as we'll try to create the user anyway
     }
     
-    const userExists = userList && userList.users && userList.users.length > 0;
+    // Search for user in the returned list
+    const existingUser = userList?.users?.find(user => user.email === email);
     
-    if (userExists) {
+    if (existingUser) {
       console.log("User already exists in auth.users, checking profile...");
       
       // Check if profile exists
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userList.users[0].id)
+        .eq('id', existingUser.id)
         .single();
       
       if (profileError && profileError.code !== 'PGRST116') {
@@ -57,7 +55,7 @@ export const createAdminUser = async (email: string, password: string): Promise<
       const { error: insertError } = await supabase
         .from('profiles')
         .insert({
-          id: userList.users[0].id,
+          id: existingUser.id,
           role: 'superadmin',
           is_approved: true,
           first_name: 'Admin',

@@ -1,10 +1,10 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import type { Database } from '@/integrations/supabase/types';
+import { setupAdmin } from '@/utils/setupAdmin';
 
 // Define UserProfile type based on the database schema
 interface UserProfile {
@@ -38,6 +38,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Try to set up admin user once when the app starts
+    setupAdmin().then(result => {
+      if (result.success) {
+        console.log("Admin user setup successful");
+      }
+    });
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
