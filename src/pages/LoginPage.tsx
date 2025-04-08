@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     const setupAdminUser = async () => {
       try {
-        await setupAdmin("admin@example.com", "AmazonPrime212@");
+        await setupAdmin();
       } catch (error) {
         console.error("Error during admin user setup:", error);
       }
