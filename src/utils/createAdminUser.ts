@@ -23,30 +23,28 @@ export const createAdminUser = async (): Promise<void> => {
     if (existingUsers && existingUsers.length > 0) {
       console.log("Existing users found, checking for admin user...");
       
-      // Get user by email (using auth admin methods)
-      const { data: userList, error: authCheckError } = await supabase.auth.admin.listUsers();
-
-      if (authCheckError) {
-        console.error("Error checking auth users:", authCheckError);
-      } else {
+      // Get user by email
+      const { data: users, error: userError } = await supabase.auth.admin.listUsers();
+      
+      if (userError) {
+        console.error("Error listing users:", userError);
+      } else if (users && users.users) {
         // Find the admin user in the user list
-        const adminUser = userList?.users?.find(user => user.email === adminEmail);
+        const adminUser = users.users.find(user => user.email === adminEmail);
         
         if (adminUser) {
           console.log("Admin user found, ensuring account is confirmed and has superadmin role");
           
           // Update the user to confirm email if not already confirmed
-          if (!adminUser.email_confirmed_at) {
-            const { error: confirmError } = await supabase.auth.admin.updateUserById(
-              adminUser.id,
-              { email_confirmed: true }
-            );
-            
-            if (confirmError) {
-              console.error("Error confirming admin email:", confirmError);
-            } else {
-              console.log("Admin email confirmed successfully");
-            }
+          const { error: confirmError } = await supabase.auth.admin.updateUserById(
+            adminUser.id,
+            { email_confirm: true }
+          );
+          
+          if (confirmError) {
+            console.error("Error confirming admin email:", confirmError);
+          } else {
+            console.log("Admin email confirmed successfully");
           }
           
           // Check if profile exists and update to superadmin
@@ -114,7 +112,7 @@ export const createAdminUser = async (): Promise<void> => {
       // Confirm the email immediately using admin API
       const { error: confirmError } = await supabase.auth.admin.updateUserById(
         data.user.id,
-        { email_confirmed: true }
+        { email_confirm: true }
       );
       
       if (confirmError) {
