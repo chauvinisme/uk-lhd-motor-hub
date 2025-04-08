@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/components/ui/use-toast";
-import { createAdminUser } from "@/utils/createAdminUser";
+import { setupAdmin } from "@/utils/setupAdmin";
 
 const LoginPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("login");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("admin@examplez.com");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     const setupAdminUser = async () => {
       try {
-        await createAdminUser("admin@example.com", "AmazonPrime212@");
+        await setupAdmin("admin@example.com", "AmazonPrime212@");
       } catch (error) {
         console.error("Error during admin user setup:", error);
       }
@@ -83,6 +83,9 @@ const LoginPage: React.FC = () => {
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold text-navy">UK-LHD Motor Hub</h1>
               <p className="text-gray-600">Access your account</p>
+              <p className="text-sm text-blue-600 mt-2">
+                Admin login: admin@examplez.com / AmazonPrime212@
+              </p>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
